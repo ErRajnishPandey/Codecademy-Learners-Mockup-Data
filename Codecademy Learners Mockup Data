@@ -1,1 +1,171 @@
+/*THESE Queries finished in 0.062 second(s).
+Below is the queries for each requirements
+*/
 
+/* 2.a Top 25 Schools using .edu domains
+*/
+SELECT
+  city,
+  country,
+  email_domain,
+  COUNT(user_id) AS 'Top 25 Schools' 
+FROM
+  users 
+GROUP BY
+  3 
+ORDER BY
+  4 DESC,
+  1 ASC 
+LIMIT 
+  25;
+/* 2.b How many .edu learners are located in New York?  50 is the answer
+*/
+SELECT
+  city AS City,
+  COUNT(user_id) AS 'New York located Schools' 
+FROM
+  users 
+WHERE
+  city = 'New York';
+/* 2.c Schools using mobile app. For experiment I checked the execution time =  .002 second
+ */
+SELECT
+  mobile_app,
+  COUNT(user_id) AS 'Mobile Users Count' 
+FROM
+  users 
+WHERE
+  mobile_app IS NOT NULL 
+  AND mobile_app != '' 
+GROUP BY 
+  1;
+/* 2c OPTIONAL ANSWER faster:- we can use case statement to avoid dealing with NOT NULL
+ and other unnecessary characters. For experiment I checked the execution time =  .001 second
+*/
+WITH mobile_app_users AS 
+(
+  SELECT
+    CASE
+      WHEN
+        mobile_app = 'mobile-user' 
+      THEN
+        1 
+      ELSE
+        NULL 
+    END
+    AS mobile_users 
+  FROM
+    users 
+)
+SELECT
+  COUNT(mobile_users) AS 'mobile users count' 
+FROM
+  mobile_app_users;
+/* 3. List sign-up counts per hour formatting
+ */
+SELECT
+  strftime('%H', sign_up_at) AS 'Hour of the day',
+  COUNT(*) AS 'Count by Hour' 
+FROM
+  users 
+GROUP BY
+  1 
+LIMIT
+ 20;
+--change TO 24 to SEE 24 HOURS
+/*4. a Join renamed tables users as u and progress as p
+Do different schools (.edu domains) prefer different courses? YES
+*/
+SELECT
+  city,
+  country,
+  u.email_domain,
+  p.learn_cpp,
+  p.learn_sql,
+  p.learn_html,
+  p.learn_javascript,
+  p.learn_java 
+FROM
+  users u 
+  LEFT JOIN
+    progress p 
+    ON u.user_id = p.user_id 		/* and we need to filter email domain who didn't take any courses,
+  using IS NULL in this CASE will not be sufficient, there is an extra space and it's putting false data,
+   so !='' is used to filter through out the row. If all the row values in the learn columns is empty then that row is not included.
+  */
+WHERE
+  p.learn_cpp != '' 
+  OR p.learn_sql != '' 
+  OR p.learn_html != '' 
+  OR p.learn_javascript != '' 
+  OR p.learn_java != '' 
+GROUP BY
+  3 
+ORDER BY
+  1 ASC;
+/*4.b  Join renamed tables users as u and progress as p
+What courses are the New Yorkers students taking?
+*/
+SELECT
+  city,
+  country,
+  u.email_domain,
+  p.learn_cpp,
+  p.learn_sql,
+  p.learn_html,
+  p.learn_javascript,
+  p.learn_java 
+FROM
+  users u 
+  LEFT JOIN
+    progress p 
+    ON u.user_id = p.user_id 		/* and we need to filter email domain who didn't take any courses,
+  using IS NULL in this CASE will not be sufficient, there is an extra space and it's putting 
+  false data, so !='' is used to filter through out the row. If all the row values in the learn
+   columns is empty then that row is not included.
+  */
+WHERE
+  city = 'New York' 
+  AND 
+  (
+    p.learn_cpp != '' 
+    OR p.learn_sql != '' 
+    OR p.learn_html != '' 
+    OR p.learn_javascript != '' 
+    OR p.learn_java != '' 
+  )
+GROUP BY 
+  3;
+/*4.c  Join renamed tables users as u and progress as p
+What courses are the Chicago students taking?
+*/
+SELECT
+  city,
+  country,
+  u.email_domain,
+  p.learn_cpp,
+  p.learn_sql,
+  p.learn_html,
+  p.learn_javascript,
+  p.learn_java 
+FROM
+  users u 
+  LEFT JOIN
+    progress p 
+    ON u.user_id = p.user_id 		/* and we need to filter email domain who didn't take any courses,
+  using IS NULL in this CASE will not be sufficient, there is an extra space and it's putting 
+  false data, so !='' is used to filter through out the row. If all the row values in the learn 
+  columns is empty then that row is not included.
+  */
+WHERE
+  city = 'Chicago' 
+  AND 
+  (
+    p.learn_cpp != '' 
+    OR p.learn_sql != '' 
+    OR p.learn_html != '' 
+    OR p.learn_javascript != '' 
+    OR p.learn_java != '' 
+  )
+GROUP BY 
+  3;
